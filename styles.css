@@ -40,3 +40,10 @@
 .analysis-figures figcaption strong{color:#53667f}
 .ablation-results>p:not(.source-note){font-size:14px;margin-bottom:18px}
 @media(max-width:720px){.results-intro{font-size:14px;margin-top:15px}.main-results h3{font-size:20px}.full-results-table{font-size:11px;min-width:850px}.full-results-table th,.full-results-table td{padding:9px 8px}.analysis-figures{grid-template-columns:1fr;gap:26px}.analysis-figures figure:last-child{max-width:320px;margin:auto}.generalization h3,.result-analysis h3,.ablation-results h3{font-size:21px}.result-analysis,.ablation-results{margin-top:27px}}
+
+/* Curated experiment highlights: main results, throughput, data efficiency. */
+#data-efficiency .analysis-figures{display:block;max-width:850px;margin:26px auto 0}
+#data-efficiency .analysis-figures figure{max-width:none;margin:0}
+.data-efficiency-summary{font-size:15px;line-height:1.8;max-width:860px;margin:0 0 20px}
+.data-efficiency-summary strong{font-weight:600;color:#355d91}
+@media(max-width:720px){.data-efficiency-summary{font-size:14px}}

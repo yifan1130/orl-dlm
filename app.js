@@ -1,37 +1,5 @@
 'use strict';
 
-const datasets = {
-  qwen: [
-    ['GSM8K', 90.4, 92.4, 2.4, 5.9],
-    ['MATH-500', 88.0, 92.2, 2.1, 5.8],
-    ['HumanEval', 82.9, 89.6, 1.8, 11.1],
-    ['MBPP', 79.2, 79.4, 2.1, 8.0]
-  ],
-  llada: [
-    ['GSM8K', 91.9, 92.0, 5.6, 8.5],
-    ['MATH-500', 84.6, 87.0, 8.2, 10.2],
-    ['HumanEval', 86.6, 89.0, 11.3, 13.1],
-    ['MBPP', 77.5, 77.3, 7.7, 10.3]
-  ],
-  gemma: [
-    ['GSM8K', 95.8, 96.0, 26.0, 30.0],
-    ['MATH-500', 92.3, 92.3, 23.7, 27.4],
-    ['HumanEval', 90.9, 91.9, 24.5, 27.9],
-    ['MBPP', 87.7, 88.2, 23.1, 27.0]
-  ]
-};
-
-function renderResults(model) {
-  const data = datasets[model];
-  const max = Math.max(...data.map(row => row[4])) * 1.18;
-  document.querySelector('#benchmark-bars').innerHTML = data.map(([name, , , base, orl]) => `
-    <div class="benchmark-chart" role="img" aria-label="${name}: base ${base.toFixed(1)}, ORL ${orl.toFixed(1)} tokens per forward, ${(orl / base).toFixed(2)} times improvement">
-      <div class="bar-pair" aria-hidden="true"><div class="bar base" style="height:${base / max * 100}%"><span>${base.toFixed(1)}</span></div><div class="bar orl" style="height:${orl / max * 100}%"><span>${orl.toFixed(1)}</span></div></div>
-      <div class="benchmark-name">${name}</div><span class="gain-label">${(orl / base).toFixed(2)}× TPF</span>
-    </div>`).join('');
-  document.querySelector('#results-panel').setAttribute('aria-labelledby', `model-${model}`);
-}
-
 const steps = [
   {
     title: '1. Generate & capture',
@@ -100,9 +68,7 @@ function setupTabs(selector, onSelect) {
     });
   });
 }
-setupTabs('[data-model]', tab => renderResults(tab.dataset.model));
 setupTabs('[data-step]', tab => renderStep(Number(tab.dataset.step)));
-renderResults('qwen');
 
 function updateEntropy() {
   const rho = Number(document.querySelector('#contraction').value) / 100;
@@ -158,7 +124,7 @@ if ('IntersectionObserver' in window) {
 }
 
 const dialog = document.querySelector('#figure-dialog');
-const figureNames = { 'training-loop': 'Figure 9 · The ORL training loop', overview: 'Figure 1 · Residual learning and the speed–quality frontier', systems: 'Figure 3 · Cumulative system optimizations', motivation: 'Figure 2 · Three observations behind ORL', 'data-efficiency': 'Figure 5 · Post-training data efficiency', stability: 'Figure 6 · Stable residual optimization' };
+const figureNames = { 'training-loop': 'Figure 9 · The ORL training loop', overview: 'Figure 1 · Residual learning and the speed–quality frontier', systems: 'Figure 3 · Cumulative system optimizations', motivation: 'Figure 2 · Three observations behind ORL', 'data-efficiency': 'Figure 5 · Post-training data efficiency' };
 document.querySelectorAll('[data-zoom]').forEach(button => {
   button.addEventListener('click', () => {
     const source = button.querySelector('img');
