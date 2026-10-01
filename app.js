@@ -77,7 +77,6 @@ function updateEntropy() {
   const shortfall = Math.max(0, next - target);
   const met = shortfall < 1e-10;
   document.querySelector('#next-value').textContent = next.toFixed(2);
-  document.querySelector('#meter-next').textContent = next.toFixed(2);
   document.querySelector('#next-bar').style.width = `${next / 0.6 * 100}%`;
   document.querySelector('#target-marker').style.left = `${target / 0.6 * 100}%`;
   document.querySelector('#target-description').textContent = `Target: ≤ ${target.toFixed(2)}`;
