@@ -49,23 +49,3 @@
 @media(max-width:720px){.data-efficiency-summary{font-size:14px}}
 
 .entropy-fixed-example{font-size:11px;line-height:1.6;color:#8892a2;margin-top:9px}
-
-/* Keep the research story short, with optional detail available on demand. */
-.method-figure{margin:30px auto 0}
-.method-figure .workflow-image-wrap{margin-bottom:12px}
-.method-figure figcaption{font-size:12px;line-height:1.75;color:#7d899a;margin:14px 0 0}
-.method-figure figcaption a{white-space:nowrap}
-#method .workflow-markers{display:none}
-#method:has(#method-details[open]) .workflow-markers{display:grid}
-.research-details{border-block:1px solid var(--line);margin-top:21px}
-.research-details>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 0;font-size:14px;color:var(--blue);cursor:pointer}
-.research-details>summary::-webkit-details-marker{display:none}
-.disclosure-icon{font-size:21px;font-weight:400;line-height:1;flex-shrink:0}
-.research-details[open]>summary .disclosure-icon{transform:rotate(45deg)}
-.method-details[open]{padding-bottom:24px}
-.method-details .workflow-card{margin-top:4px}
-.method-details .entropy-card{margin-top:24px}
-.baseline-details{margin-top:4px}
-.baseline-details>.table-scroll{margin-top:9px}
-.baseline-details .source-note{padding-bottom:16px}
-@media(max-width:720px){.method-figure{margin-top:23px}.method-figure figcaption{font-size:11px}.research-details>summary{font-size:13px;padding:15px 0;line-height:1.65}}
