@@ -47,3 +47,5 @@
 .data-efficiency-summary{font-size:15px;line-height:1.8;max-width:860px;margin:0 0 20px}
 .data-efficiency-summary strong{font-weight:600;color:#355d91}
 @media(max-width:720px){.data-efficiency-summary{font-size:14px}}
+
+.entropy-fixed-example{font-size:11px;line-height:1.6;color:#8892a2;margin-top:9px}

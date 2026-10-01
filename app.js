@@ -71,12 +71,11 @@ function setupTabs(selector, onSelect) {
 setupTabs('[data-step]', tab => renderStep(Number(tab.dataset.step)));
 
 function updateEntropy() {
-  const rho = Number(document.querySelector('#contraction').value) / 100;
+  const rho = 0.25; // Fixed illustrative value; not a user-adjustable model setting.
   const next = Number(document.querySelector('#next-entropy').value) / 100;
   const target = (1 - rho) * 0.4;
   const shortfall = Math.max(0, next - target);
   const met = shortfall < 1e-10;
-  document.querySelector('#contraction-value').textContent = `${Math.round(rho * 100)}%`;
   document.querySelector('#next-value').textContent = next.toFixed(2);
   document.querySelector('#meter-next').textContent = next.toFixed(2);
   document.querySelector('#next-bar').style.width = `${next / 0.6 * 100}%`;
