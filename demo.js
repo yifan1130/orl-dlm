@@ -4,7 +4,7 @@
 // lanes list their tokens and how many each forward pass emitted; the block-diffusion lane lists, per block, the
 // final token ids and the canvas each denoising step started from (a block takes its steps plus one cache commit).
 (() => {
-  const root = document.querySelector('#demo.race-demo');
+  const root = document.querySelector('.race-demo');
   if (!root) return;
   const $ = id => document.getElementById(id);
   const slider = $('race-slider'), play = $('race-play');
@@ -201,7 +201,7 @@
     observer.observe($('race-lanes'));
   }
 
-  fetch('assets/orl-race.json')
+  fetch('assets/orl-race.json?v=20261005')
     .then(response => {
       if (!response.ok) throw new Error(response.statusText);
       return response.json();
