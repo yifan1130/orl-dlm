@@ -70,21 +70,66 @@ function setupTabs(selector, onSelect) {
 }
 setupTabs('[data-step]', tab => renderStep(Number(tab.dataset.step)));
 
-function updateEntropy() {
-  const rho = 0.25; // Fixed illustrative value; not a user-adjustable model setting.
-  const next = Number(document.querySelector('#next-entropy').value) / 100;
-  const target = (1 - rho) * 0.4;
-  const shortfall = Math.max(0, next - target);
-  const met = shortfall < 1e-10;
-  document.querySelector('#next-value').textContent = next.toFixed(2);
-  document.querySelector('#next-bar').style.width = `${next / 0.6 * 100}%`;
-  document.querySelector('#target-marker').style.left = `${target / 0.6 * 100}%`;
-  document.querySelector('#target-description').textContent = `Target: ≤ ${target.toFixed(2)}`;
-  document.querySelector('#loss-status').textContent = met ? 'Target met · no AEC penalty' : 'Contraction shortfall';
-  document.querySelector('#loss-value').textContent = `Loss = ${(shortfall ** 2).toFixed(4)}`;
-  document.querySelector('.loss-readout').classList.toggle('met', met);
+// AEC illustration with fixed ρ and source state; the reader sets the next state's entropy on the axis.
+const AEC = {
+  rho: 0.25, axis: 0.6,
+  // Per-position entropy of the source state; null = resolved. The unresolved mean is 0.40.
+  source: [null, null, 0.55, 0.48, 0.2, null, 0.62, 0.35, 0.41, null, 0.29, 0.3],
+  // The step resolves positions 4 and 10; the others keep their relative uncertainty, scaled to H_next.
+  resolvedByStep: new Set([4, 10])
+};
+AEC.sourceH = AEC.source.filter(e => e !== null).reduce((a, b) => a + b, 0) / AEC.source.filter(e => e !== null).length;
+AEC.target = (1 - AEC.rho) * AEC.sourceH;
+AEC.weights = AEC.source.map((e, i) => (e === null || AEC.resolvedByStep.has(i) ? null : e));
+AEC.weightMean = AEC.weights.filter(e => e !== null).reduce((a, b) => a + b, 0) / AEC.weights.filter(e => e !== null).length;
+
+function aecCells(container, entropies) {
+  if (!container.children.length) entropies.forEach(() => container.append(document.createElement('i')));
+  entropies.forEach((e, i) => {
+    const cell = container.children[i];
+    cell.className = e === null ? 'done' : 'open';
+    cell.style.backgroundColor = e === null ? '' : `rgba(223, 123, 48, ${(0.12 + 0.88 * Math.min(1, e / 0.8)).toFixed(3)})`;
+    cell.title = e === null ? 'Resolved' : `Entropy ${e.toFixed(2)}`;
+  });
 }
-document.querySelectorAll('.entropy-demo input').forEach(input => input.addEventListener('input', updateEntropy));
+
+function aecCurve(next, loss) {
+  const x = h => 2 + 84 * h / AEC.axis, y = l => 29 - 26 * l / (AEC.axis - AEC.target) ** 2;
+  const points = [`M${x(0)},${y(0)}`, `L${x(AEC.target)},${y(0)}`];
+  for (let h = AEC.target; h <= AEC.axis + 1e-9; h += 0.01) points.push(`L${x(h).toFixed(2)},${y((h - AEC.target) ** 2).toFixed(2)}`);
+  const path = document.querySelector('#aec-curve-path'), line = document.querySelector('#aec-curve-target');
+  path.setAttribute('d', points.join(''));
+  line.setAttribute('x1', x(AEC.target));
+  line.setAttribute('x2', x(AEC.target));
+  const dot = document.querySelector('#aec-dot');
+  dot.setAttribute('cx', x(next).toFixed(2));
+  dot.setAttribute('cy', y(loss).toFixed(2));
+}
+
+function updateEntropy() {
+  const input = document.querySelector('#next-entropy');
+  const next = Number(input.value) / 100, pct = h => `${100 * h / AEC.axis}%`;
+  const shortfall = Math.max(0, next - AEC.target), loss = shortfall ** 2, met = shortfall < 1e-10;
+  aecCells(document.querySelector('#aec-next'), AEC.weights.map(w => (w === null ? null : w * next / AEC.weightMean)));
+  document.querySelector('#aec-next-h').textContent = `H ${next.toFixed(2)}`;
+  document.querySelector('#aec-handle').style.left = pct(next);
+  document.querySelector('#aec-handle-label').textContent = `next ${next.toFixed(2)}`;
+  const band = document.querySelector('#aec-band');
+  band.style.left = pct(Math.min(next, AEC.target));
+  band.style.width = pct(Math.abs(next - AEC.target));
+  band.classList.toggle('met', met);
+  document.querySelector('#loss-status').textContent = met ? 'Target met · no AEC penalty' : 'Contraction shortfall';
+  document.querySelector('#loss-value').textContent = met
+    ? `${next.toFixed(2)} ≤ ${AEC.target.toFixed(2)} → ℒ = 0`
+    : `ℒ = (${next.toFixed(2)} − ${AEC.target.toFixed(2)})² = ${loss.toFixed(4)}`;
+  document.querySelector('.aec-readout').classList.toggle('met', met);
+  input.setAttribute('aria-valuetext', `${next.toFixed(2)}; target ${AEC.target.toFixed(2)}; loss ${loss.toFixed(4)}`);
+  aecCurve(next, loss);
+}
+aecCells(document.querySelector('#aec-source'), AEC.source);
+document.querySelector('.aec-target').style.left = `${100 * AEC.target / AEC.axis}%`;
+document.querySelector('.aec-source').style.left = `${100 * AEC.sourceH / AEC.axis}%`;
+document.querySelector('#next-entropy').addEventListener('input', updateEntropy);
 updateEntropy();
 
 const menu = document.querySelector('.menu-toggle');
