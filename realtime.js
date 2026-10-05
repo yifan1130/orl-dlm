@@ -254,7 +254,7 @@
     observer.observe(root);
   }
 
-  fetch('assets/orl-realtime.json?v=20261005')
+  fetch('assets/orl-realtime.json?v=20261005e')
     .then(response => {
       if (!response.ok) throw new Error(response.statusText);
       return response.json();
