@@ -12,7 +12,7 @@
   const FILL = 'abcdefghijklmnopqrstuvwxyz0123456789#$%&*+=<>?/|~^';
   const COLOR = { ar: '#a3abb7', opd: '#5d6878', orl: '#2475db' };
   const FRESH_S = 0.12, HOLD_S = 2.5, FRAME_MS = 33, STEP_S = 0.05, FLIP_MS = 220;
-  const FACES = { qwen: 'assets/orl-realtime.json?v=20261005e', gemma: 'assets/orl-realtime-gemma.json?v=20261007a' };
+  const FACES = { qwen: 'assets/orl-realtime.json?v=20261005e', gemma: 'assets/orl-realtime-gemma.json?v=20261007b' };
   const chart = $('rt-chart'), play = $('rt-play');
   const head = { badge: root.querySelector('.rt-head .demo-badge'), title: $('rt-title'), lead: root.querySelector('.rt-head p') };
   const defaults = Object.fromEntries(Object.entries(head).map(([k, node]) => [k, node.textContent]));
