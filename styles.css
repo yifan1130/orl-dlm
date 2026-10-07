@@ -141,6 +141,15 @@
 .rt-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px}
 .rt-head h2{font-size:22px;letter-spacing:-.3px;margin-top:7px}
 .rt-head p{font-size:13px;line-height:1.65;color:var(--muted);margin-top:6px}
+.rt-demo{transition:transform .22s ease,opacity .22s ease}
+.rt-demo.flip-out{transform:perspective(1800px) rotateY(90deg);opacity:.35}
+.rt-demo.flip-in{transform:perspective(1800px) rotateY(-90deg);opacity:.35;transition:none}
+.rt-side{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0}
+.rt-flip{display:inline-flex;gap:2px;padding:2px;border:1px solid var(--line);border-radius:6px;background:#f6f8fb}
+.rt-flip button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 11px;border:0;border-radius:4px;background:none;font-size:11.5px;font-weight:600;line-height:1.2;color:#6f7a89;cursor:pointer}
+.rt-flip button small{font-size:9.5px;font-weight:400;color:#9aa3af}
+.rt-flip button[aria-pressed="true"]{background:#fff;color:var(--blue);box-shadow:0 1px 2px #17202b1a}
+.rt-flip button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 .rt-clock{flex-shrink:0;text-align:right}
 .rt-clock b{display:block;font:600 24px/1.15 var(--mono);color:#2d333b;font-variant-numeric:tabular-nums}
 .rt-clock small{font-size:10px;color:#8b929d}
@@ -179,4 +188,4 @@
 .rt-note{padding:12px 0}
 .explorer-section .race-demo{margin-top:0}
 .explorer-section .race-head h3{font-size:20px;letter-spacing:-.3px;margin-top:7px}
-@media(max-width:720px){.rt-demo{margin-top:24px;padding:17px 14px 2px;border-radius:5px}.rt-head{display:block}.rt-head h2{font-size:19px}.rt-head p{font-size:12px}.rt-clock{text-align:left;margin-top:10px}.rt-lanes{grid-template-columns:1fr;gap:10px}.rt-text{height:130px;font-size:8px}.rt-stats b{font-size:24px}}
+@media(max-width:720px){.rt-demo{margin-top:24px;padding:17px 14px 2px;border-radius:5px}.rt-head{display:block}.rt-head h2{font-size:19px}.rt-head p{font-size:12px}.rt-side{flex-direction:row;align-items:center;justify-content:space-between;margin-top:10px}.rt-clock{text-align:left}.rt-lanes{grid-template-columns:1fr;gap:10px}.rt-text{height:130px;font-size:8px}.rt-stats b{font-size:24px}}

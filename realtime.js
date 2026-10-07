@@ -1,8 +1,9 @@
 'use strict';
 
-// Real-time replay of recorded wall-clock decoding (assets/orl-realtime.json): each lane answers the same problems back
-// to back and text appears when it was emitted. Sequential lanes list per streamed chunk its token count and arrival
-// time; the block-diffusion lane lists per block its emission time, step count and every position's settle round.
+// Real-time replay of recorded wall-clock decoding: each lane answers the same problems back to back and text appears
+// when it was emitted. Sequential lanes list per streamed chunk its token count and arrival time; the block-diffusion
+// lane lists per block its emission time, step count and every position's settle round. The card has two faces, one
+// recording per model family, and flips between them.
 (() => {
   const root = document.querySelector('.rt-demo');
   if (!root) return;
@@ -10,9 +11,13 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const FILL = 'abcdefghijklmnopqrstuvwxyz0123456789#$%&*+=<>?/|~^';
   const COLOR = { ar: '#a3abb7', opd: '#5d6878', orl: '#2475db' };
-  const FRESH_S = 0.12, HOLD_S = 2.5, FRAME_MS = 33, STEP_S = 0.05;
+  const FRESH_S = 0.12, HOLD_S = 2.5, FRAME_MS = 33, STEP_S = 0.05, FLIP_MS = 220;
+  const FACES = { qwen: 'assets/orl-realtime.json?v=20261005e', gemma: 'assets/orl-realtime-gemma.json?v=20261007a' };
   const chart = $('rt-chart'), play = $('rt-play');
-  let lanes = [], windowS = 20, t = 0, timer = null, last = 0, series = [], most = 1;
+  const head = { badge: root.querySelector('.rt-head .demo-badge'), title: $('rt-title'), lead: root.querySelector('.rt-head p') };
+  const defaults = Object.fromEntries(Object.entries(head).map(([k, node]) => [k, node.textContent]));
+  const loaded = {};
+  let lanes = [], windowS = 20, t = 0, timer = null, last = 0, series = [], most = 1, face = null, flipping = false;
 
   function element(tag, className, text) {
     const node = document.createElement(tag);
@@ -135,7 +140,8 @@
   function renderLane(lane, time) {
     const ui = lane.ui, problems = lane.problems;
     const shown = upto(lane.reveals, time);
-    ui.rate.textContent = time > 0.4 ? Math.round(shown / time) : '–';
+    const busy = Math.min(time, problems[problems.length - 1].t1);  // the rate stops when the lane runs out of problems
+    ui.rate.textContent = busy > 0.4 ? Math.round(shown / busy) : '–';
     let index = problems.findIndex(p => p.t1 > time);
     const finishedAll = index < 0;
     if (finishedAll) index = problems.length - 1;
@@ -229,8 +235,18 @@
     timer = setTimeout(tick, FRAME_MS);
   }
 
-  function init(data) {
+  function load(key) {
+    loaded[key] = loaded[key] || fetch(FACES[key]).then(response => {
+      if (!response.ok) throw new Error(response.statusText);
+      return response.json();
+    });
+    return loaded[key];
+  }
+
+  // Rebuild the lanes, chart, note and heading from one recording.
+  function show(data) {
     windowS = data.window;
+    $('rt-lanes').replaceChildren();
     lanes = data.lanes.map(build);
     series = lanes.map(lane => {
       const samples = [];
@@ -239,27 +255,56 @@
     });
     most = Math.max(1, ...series.map(s => s[s.length - 1]));
     $('rt-note').textContent = data.note;
+    const text = data.head || defaults;
+    Object.entries(head).forEach(([k, node]) => { node.textContent = text[k]; });
     layoutChart();
     t = reduceMotion ? windowS : 0;
     render(t);
-    play.addEventListener('click', () => (timer ? stop() : begin()));
-    window.addEventListener('resize', () => { layoutChart(); render(t); });
-    if (reduceMotion || !('IntersectionObserver' in window)) return;
-    const observer = new IntersectionObserver(entries => {
-      if (entries.some(entry => entry.isIntersecting)) {
-        observer.disconnect();
-        begin();
-      }
-    }, { threshold: 0.3 });
-    observer.observe(root);
   }
 
-  fetch('assets/orl-realtime.json?v=20261005e')
-    .then(response => {
-      if (!response.ok) throw new Error(response.statusText);
-      return response.json();
+  const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  async function flip(key) {
+    if (key === face || flipping) return;
+    flipping = true;
+    root.querySelectorAll('.rt-flip button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.face === key)));
+    const data = load(key);
+    stop();
+    if (!reduceMotion) {
+      root.classList.add('flip-out');
+      await wait(FLIP_MS);
+    }
+    try {
+      show(await data);
+      face = key;
+    } catch {
+      $('rt-note').textContent = 'The recorded runs could not be loaded.';
+    }
+    if (!reduceMotion) {
+      root.classList.replace('flip-out', 'flip-in');
+      void root.offsetWidth;  // start the turn back from the far side
+      root.classList.remove('flip-in');
+      begin();
+    }
+    flipping = false;
+  }
+
+  play.addEventListener('click', () => (timer ? stop() : begin()));
+  window.addEventListener('resize', () => { if (lanes.length) { layoutChart(); render(t); } });
+  root.querySelectorAll('.rt-flip button').forEach(b => b.addEventListener('click', () => flip(b.dataset.face)));
+  load('qwen')
+    .then(data => {
+      show(data);
+      face = 'qwen';
+      if (reduceMotion || !('IntersectionObserver' in window)) return;
+      const observer = new IntersectionObserver(entries => {
+        if (entries.some(entry => entry.isIntersecting)) {
+          observer.disconnect();
+          if (!timer) begin();
+        }
+      }, { threshold: 0.3 });
+      observer.observe(root);
     })
-    .then(init)
     .catch(() => {
       $('rt-note').textContent = 'The recorded runs could not be loaded.';
     });
